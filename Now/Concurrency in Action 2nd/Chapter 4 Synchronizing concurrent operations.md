@@ -61,5 +61,16 @@ Thread waiting for another thread,
 
     - No shared data, no race conditions thus no mutexes.
     - Easier to distinct dangerous (impure) and safe (pure) functions.
-    - *future* can be passed around between threads to allow the result of one computation to depend on the result of another, without any explicit access to shared data.
+    - *future* can be passed around between threads to allow the result of one computation to depend on the result of another, *without any explicit access to shared data*.
+
+  - Alterantive paradigms exists, like CSP(Communicating Sequential Processes), where threads are conceptually entirely separate, with no shared data but with communication channels that allow messages to be passed between them.
+
+    - no shared data, each thread is effectively a state machine. receive message to change state, and send message to other threads.
+    - Threads share the same virtual memory space, thus needs discipline.
+    - Use member function pointers to indicate state and state transition for each actor. No need to concern concurrency issues.
+    - This style of programming can greatly simplify the task of designing a concurrent system.
+
+
+
+
 
