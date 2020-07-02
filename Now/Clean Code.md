@@ -56,5 +56,70 @@
 - Boundaries
   - Using third-party code
     - provider of interface and user of interface, portability v.s. specialization.
-    - 
+
+---
+
+Emergence
+
+- Getting Clean via Emergent Design
+  - Runs all the tests, writing tests leads to better designs.
+  - Contains no duplication
+  - Expresses the intent of the programmer
+  - Minimizes the number of classes and methods
+
+
+
+---
+
+Concurrency
+
+- Why concurrency?
+  - Decouple what gets done from when it gets done.
+  - Myths and Misconceptions
+    - Concurrency incurs some overhead.
+    - Correct concurrency is complex.
+    - Concurrency bugs aren't usually repeatable.
+    - Concurrency often requires a fundamental change in design strategy.
+- Concurrency defense principles
+  - Single Responsibility Principle
+    - Concurrency-related code has its own life cycle of development, change and tuning.
+    - Concurrency-related code has its own challenges, which are different from and often more difficult than non-concurrency-related code.
+    - The number of ways in which miswritten concurrency-based code can fail makes it challenging enough without the added burden of surrounding application code.
+    - **Keep your concurrency-related code separate from other code.**
+  - Corollary: Limit the Scope of Data
+    - Take data encapsulation to heart; severely limit the access of any data that may be shared.
+  - Corollary: Use Copies of Data
+    - A good way to avoid shared data is to avoid sharing the data in the first place.
+  - Corollary: Threads should be as Independent as Possible
+    - Attempt to partition data into independent subsets that can be operated on by independent threads, possibly in different processors.
+- Know your library
+  - Building blocks to support advanced concurrency design
+    - ReentrantLock, a lock that can be acquried in one method and released in another
+    - Semaphore, a lock with a count
+    - CountDownLatch, a lock that waits for a number of events before releasing all threads waiting on it.
+- Execution Models
+  - Definitions:
+    - Bound Resources, resources with a fixed size.
+    - Mutual Exclusion, only one thread can access shared data at a time.
+    - Starvation, One or a group of threads is prohibited from proceeding for an excessively long time or forever.
+    - Deadlock, Two or more threads waiting for each other to finish.
+    - Livelock, each thread trying to do work but finding another ``in the way''.
+  - Most Concurrent Problems will be some variation of these three problems.
+    - Producer-Consumer
+    - Reader-Writer
+    - Dining Philosophers
+  - Learn these basic algorithms and understand their solutions
+- Beware dependencies between synchronized methods
+  - Avoid using more than one method on a shared object.
+    - Client-based locking
+    - Server-based locking
+    - Adapted Server
+- Keep Synchronized Sections Small
+  - Keep your synchronized sections as small as possible
+- Writing Correct Shut-Down Code is Hard
+  - Think about shut-down early and get it working early. It's going to take longer than you expect. Review existing algorithms because this is probably harder than you think.
+- Testing Threaded Code
+  - Write tests that have the potential to expose problems and then run them frequently, with different programatic configurations and system configurations and load. If tests ever fail, track down the failure. Don't ignore a failure just because the tests pass on a subsequent run.
+
+
 
