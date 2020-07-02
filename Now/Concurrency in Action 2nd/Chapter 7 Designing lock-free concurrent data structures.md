@@ -53,3 +53,4 @@ Cons:
 - if a thread is going to access an object that another thread might want to delete, it first sets a hazard pointer to reference the object, warning deleting threads.
   - Once the object is no longer needed, the hazard pointer is cleared.
 - When a thread want to delete an object, it must first check the hazard pointers belonging to the other threads in the system.
+
