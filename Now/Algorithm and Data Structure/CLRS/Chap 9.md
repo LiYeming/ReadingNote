@@ -47,3 +47,22 @@ Worst running time is $\Theta(n^2)$.
 
 ## Selection in worst-case linear time
 
+A selection algorithm whose running time is $O(n)$ in the worse case.
+
+- Guarantee a good split upon partitioning the input array.
+
+Algorithm:
+
+	1. Divide the $n$ elements of the input array into $[n/5]$ groups of $5$ elements each and at most one group made up of the remaining $n \% 5$ elements.
+ 	2. Find the median of each bucket by insertion-sorting
+ 	3. Recursively to find the median $x$ of the $[n/5]$ medians.
+ 	4. Partition the input array around the median-of-medians $x$ using the modified version of PARTITION. Let $k$ be one more than the number of elements on the low side of partition. so $x$ is the $k$-th smallest.
+ 	5. If $i = k$ then return $x$. Otherwise, recursively to find the $i$th smallest element on the lowside or high side.
+
+We can see that at least half of the $[n/5]$ group contributes at least 3 elements that are greater than $x$. The number of elements greater than $x$ is at least $3([\frac{1}{2}[\frac{n}{5}]] - 2) \geq \frac{3n}{10} - 6$
+
+$T(n) = \Theta(n)$.
+
+
+
+Solving the selection problem by sorting and indexing is asymptotically inefficient.
