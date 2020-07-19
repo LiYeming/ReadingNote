@@ -53,5 +53,10 @@ A **priority-queue** is a data structure for maintaining a set $S$ of elements, 
 - Extract_max, return and pop the maximum element in $S$.
 - Increase_key, increases the value of element $x$'s key to the new value $k$.
 
-We can use a heap to implement priority queue.
+Naturally, we can use a heap to implement priority queue.
+
+- Maximum, return A[1].
+- Extract_max, exchange A[1] and A[heapsize], heapsize--, Max_heapify(A, 1).
+- Increase_key, A[i] = key, recursively exchange A[parent(i)] and A[i], and renew i = parent(i) until parent(i) >= i or i <= 1
+- Insert, heap.size++, A[A.heap-size] = key, heap_increase_key(A, A.heap-size, key);
 
