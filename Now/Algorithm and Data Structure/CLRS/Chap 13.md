@@ -54,6 +54,12 @@ What to fix?
 - Property 2, Root may be red. 
 - Property 4, Red newcomer may have red parent.
 
+Use a loop to fixup the insert, which remains invariants:
+
+- Node $z$ is red.
+- If $z$'s parent is root, then $z$'s parent is black.
+- If the tree violates any of red-black properties, then it violates at most one of them, and the violation is either property 2 or property 4.
+
 Cases, assuming we insert node $z$.
 
 1. $z$'s uncle $y$ is red
@@ -67,4 +73,28 @@ Cases, assuming we insert node $z$.
    in case 2, if $z$ is a right child, we can left-rotate $z$, and come to case 3.
 
    in case 3, $z$ is a left child, we can right-rotate $z$'s parent, and do the corresponding coloring to maintain Property 5.
+
+## Deletion
+
+Deleting a node from a RB-tree is a bit more complicated than inserting.
+
+The procedure RB-delete is like the TREE-delete procedure, but with additional code to preserve red-black property.
+
+We record the node $y$ which has changed in the deletion process. if the node $z$ to be deleted has fewer than two children, then $y$ should be $z$, otherwise, $y$ should be some node in $z$'s right subtree.
+
+If $y$'s color is black, there would be possibility to violate the red-black property. If $y$'s color is red, everything is ok. denote $x$ as $y$'s replacement.
+
+- $y$ is root and $x$ may be red, thus violate property 2.
+- $x$ and $x.parent$ may be red at the same time.
+- Any simple path previously contain $y$ now have one fewer black node, thus violate property 5. 
+  - Solved by accounting $x$ "double black" or "red and black", but violate property 1.
+
+The idea of the fix is to move the "double black" or "red and black" node up to the root. until 
+
+- $x$ points to a red and black node, just color it black 
+- x points to the root, can be safely ignored.
+
+The key idea of the fix is that in each case, the transformation applied preserves the number of black nodes from root to each subtrees. Consequently, property 5 will not change.
+
+
 
