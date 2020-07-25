@@ -41,6 +41,66 @@ We can extend the dynamic-programming approach to record not only the optimal va
 2. A recursive solution
    Let $m[i,j]$ be the minimum number of scalar multiplications needed to compute matrix $A_{i\dots j}$.
    1. $m[i,i] = 0$
-   2. $m[i,j] = m[i,k] + m[k+1, j] + p_{i-1}p_kp_{j}.$ if $i < j$.
+   2. $m[i,j] = m[i,k] + m[k+1, j] + p_{i-1}p_kp_{j}.$ if $i < j$. for some $k$.
    3. $s[i,j]$ = the optimal $k$.
-   4. 
+3. Computing the optimal costs.
+4. Constructing an optimal solution.
+
+## Elements of dynamic programming
+
+Two key ingredients that an optimization problem must have in order for dynamic programming.
+
+- **Optimal substructure**
+  An optimal solution to the problem contains within it optimal solutions to subproblems.
+
+  1. A solution to the problem consists of making a choice, making this choice leaves one or more subproblems to be solved.
+  2. The choice is made to give an optimal solution.
+  3. Given the choice, determine which subproblems ensue and how to best characterize the resulting space of subproblems.
+  4. Solutions to the subproblems used within an optimal solution to the problem must themselves be optimal.
+
+  Rule of thumb, try to keep the space as simple as possible and then expand it as necessary.
+
+  Optimal substructure varies across problem domains in two ways:
+  
+  - How many subproblems on optimal solution to the original problem uses
+  - How many choices we have in determining which subproblem to use in an optimal solution
+  
+  Informally, the running time of dynamic-programming algorithm depends on the product of two factors:
+  
+  - Number of subproblems
+  - How many choices we look at for each subproblem
+  
+  Subproblems should be independent with each other, that is, solving a subproblem should not affect the solution of another subproblem.
+  
+- **Overlapping subproblems**
+
+  The total number of distinct subproblems should be small. When a recursive algorithm revisits the same problem repeatedly, we say the optimization problem has **overlapping subproblems.**
+
+  
+
+In general , the bottom-up dynamic-programming algorithm usually outperforms the corresponding top-down memoized algorithm by a constant factor.
+
+- No overhead for recursion and less overhead for maintaining the table.
+- Solving only the subproblems that are definitely required.
+
+
+
+## Longest common subsequence
+
+Two given sequences $X = <x_1, x_2,\dots, x_m>$, $Y = <y_1, y_2, \dots,y_k>$,  $Z$ is a longest common subsequence of $X$ and $Y$ if $Z$ is a subsequence of both $X$ and $Y$. find $Z$.
+
+1. **Characterizing a longest common subsequence**
+   **Theorem** Given $X = <x_1, x_2,\dots, x_m>$, $Y = <y_1, y_2, \dots,y_k>$,  $Z = <z_1, z_2, \dots, z_k>$ is any longest common subsequence of $X$ and $Y$. 
+   1. if $x_m = y_k$, $Z_{k-1}$ is an LCS of $X_{m-1}$ an $Y_{k-1}$.
+   2. if $x_m \neq y_k$, $z_k \neq x_m$ implies $Z$ is an LCS of $X_{m-1}$ and $Y$.
+   3. if $x_m \neq y_k$, $z_k \neq y_n$ implies $Z$ is an LCS of $X$ and $Y_{k-1}$.
+2. **A recursive solution**
+3. **Constructing an LCS**
+4. **Improving the code on time or space it uses**
+
+## Optimal binary search trees
+
+Given a sequence $K = <k_1, k_2, \dots, k_n>$ of $n$ distinct keys in sorted order. We wish to build a binary search tree from these keys. For each key $k_i$, we have a probability $p_i$ that a search will be $k_i$.
+
+Optimal substructure, if an optimal binary search tree $T$ has a subtree $T'$ containing keys $k_i, \dots, k_j$, then this subtree $T'$ must be optimal as well for the subproblem with keys $k_i,\dots, k_j$.
+
