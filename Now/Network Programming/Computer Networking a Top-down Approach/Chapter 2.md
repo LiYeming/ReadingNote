@@ -205,5 +205,72 @@ Suppose Alice wants to send Bob a simple ASCII message.
 
 ### Comparison with HTTP
 
-SMTP is a push protocol, HTTP mainly is a pull protocol.
+1. SMTP is a push protocol, HTTP mainly is a pull protocol.
+2. SMTP requires each message including the body of each messae to be in 7-bit ASCII format. HTTP does not impose such restriction.
+3. HTTP encapsulates each object in its own HTTP response message. SMTP places all of the message's objects into one message.
+
+### Mail Message Formats
+
+```html
+From : addr@server.com
+To : addrto@server2.com
+Subject : test
+```
+
+### Mail Access Protocols
+
+Special mail access protocol that transfers mail from the recipient's mail server to the recipient's PC.
+
+- POP3
+  Simple, functionality is limited.
+  - Open a TCP connection to mail server on port 110
+  - authorization, username and passwd.
+  - transaction, retrieves messages, mark messages for deletion, remove deletion marks and obtain mail statistics.
+  - update, server delete messages indicated in transaction phase.
+- IMAP
+  More features than POP3, but also more complex.
+- HTTP
+  Web-Based email. User communicates with its remote mailbox via HTTP protocol.
+
+## DNS - The Internet Directory Service
+
+Identify a host
+
+- hostname, `www.facebook.com`
+  Little information about the location within the Internet of host.
+- IP addresses, `121.7.106.83`
+
+### Services Provided by DNS
+
+People prefer hostname, routers prefer IP address. DNS(Domain name system) is used as a translator.
+
+- A distributed database implemented in a hierarchy of DNS servers
+- An application-layer protocol that allows hosts to query the distributed database.
+
+In order to be able to send an HTTP request message to the webserver, the user's host must first obtain the IP address of it.
+
+1. The same user machine runs the client side of the DNS application.
+2. The browser extracts the hostname from URL and passes the hostname to the client side of the DNS application.
+3. The DNS client sends a query containing the hostname to a DNS server
+4. The DNS client eventually receives a reply, which includes the IP address for the hostname
+5. Once the browser receives the IP address from DNS, it can initiate a TCP connection to the HTTP server process located at port 80 at that IP address.
+
+DNS also provides additional important services:
+
+- Host aliasing, different names for same server.
+- Mail server aliasing, same as above.
+- Load distribution, different IP addresses for same hostname.
+
+### Overview of How DNS Works
+
+
+
+Centralized design
+
+- A single point of failure
+- Traffic volume
+- Distant centralized database
+- Maintenance
+
+
 
