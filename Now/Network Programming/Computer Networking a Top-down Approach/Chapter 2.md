@@ -380,11 +380,50 @@ When choosing which request she responds to, BitTorrent uses a clever trading al
 
 ## Socket Programming: Creating Network Applications
 
+How network application programs are actually created. 
+
+When creating a network application, the developer's main task is therefore to write the code for both the client and server programs.
+
+Two types of network applications:
+
+- Open, operation is specified in a protocol standard.
+- Proprietary, client and server programs employ an application-layer protocol that has not been openly published in an RFC or elsewhere.
 
 
 
+### Socket Programming with UDP
 
+#### UDPClient.py
 
+```python
+# UDPClient.py
+
+from socket import *
+serverName = 'hostname'
+serverPort = 12000
+clientSocket = socket(AF_INET, SOCK_DGRAM)  #IPv4, UDP
+message = raw_input('Input lowercase sentence:')
+clientSocket.sendto(message.encode(), (serverName, serverPort))
+modifiedMessage, serverAddress = clientSocket.recvfrom(2048)
+print(modifiedMessage.decode())
+clientSocket.close()
+```
+
+#### UDPServer.py
+
+```python
+# UDPServer.py
+
+from socket import *
+serverPort = 12000
+serverSocket = socket(AF_INET, SOCK_DGRAM)
+serverSocket.bind(('', serverPort))
+print("The server is ready to receive")
+while True:
+    message, clientAddress = serverSocket.recvfrom(2048)
+    modifiedMessage = message.decode().upper()
+    serverSocket.sendto(modifiedMessage.encode(), clientAddress)
+```
 
 
 
