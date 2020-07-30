@@ -240,6 +240,8 @@ Identify a host
   Little information about the location within the Internet of host.
 - IP addresses, `121.7.106.83`
 
+The DNS protocol runs over UDP and uses port 53.
+
 ### Services Provided by DNS
 
 People prefer hostname, routers prefer IP address. DNS(Domain name system) is used as a translator.
@@ -263,14 +265,130 @@ DNS also provides additional important services:
 
 ### Overview of How DNS Works
 
+Focus on Hostname-to-IP address translation service.
+
+A simple centralized design, one DNS server handle all requests.
+
+- Unacceptable demerits of Centralized design
+  - A single point of failure
+  - Traffic volume
+  - Distant centralized database
+  - Maintenance
+
+#### A Distributed, Hierarchical Database
+
+DNS uses a large number of servers, organized in a hierarchical fashion and distributed around the world.
+
+Visiting `www.amazon.com`
+
+- Contact one of root DNS server, return IP address for TLD servers for top-level domain `com`.
+- Contact TLD servers, return the IP address of an authoritative server for `amazon.com`.
+- Contact authoritative servers for `amazon.com`, return the IP address of `www.amazon.com`.
+
+Three classes of DNS servers, all belong to the DNS server hierarchy.
+
+- Root DNS servers.
+- Top-level Domain DNS servers.
+- Authoritative DNS servers.
+
+Local DNS server
+
+- Does not belong to DNS server hierarchy.
+- Each ISP has a local DNS server. When a host connect to an ISP, the ISP provides the host with the IP address of one or more of its local DNS servers.
+- Local DNS server works as a relay between host and DNS server hierarchy.
 
 
-Centralized design
 
-- A single point of failure
-- Traffic volume
-- Distant centralized database
-- Maintenance
+In reality, TLD server does not necessarily know the authoritative DNS server for the hostname. TLD server may only know an intermediate DNS server, which in turn knows the DNS server for hostname.
+
+#### DNS Caching
+
+DNS extensively exploits NDS caching in order to improve the delay performance and to reduce the number of DNS messages ricocheting around the internet.
+
+- When a DNS server receives a DNS reply, it can cache the mapping in its local memory.
+- DNS servers discard cached information after a period of time.
+- In fact, because of caching, root servers are bypassed for all but a very small fraction of DNS queries.
+
+### DNS Records and Messages
+
+The DNS server that together implement the DNS distributed database store **resource records**.
+
+A resource record is a four-tuple that contains the following fields:
+
+`(Name, Value, Type, TTL)`
+
+- `Type = A`, `Name` is a hostname, `Value` is the IP address of the hostname.
+- `Type = NS`, `Name` is a domain, `Value` is the hostname of the authoritative server.
+- `Type = CNAME`, `Value` is canonical hostname for the alias hostname `Name`.
+- `Type = MX`, `Value` is canonical name of a mail server that has an alias hostname `Name`.
+
+If a server contain a `Type NS` Resource Record, it should also contain a `Type A` resource record for IP address of the hostname stored in the `Type NS` Resource Record.
+
+#### DNS Messages
+
+There are only two kinds of DNS messages, query and reply. They share the same format.
+
+- 12 bytes *Header Section*
+  - **Identification**, 16-bit number
+  - **Flag**, 
+    - 1-bit flag to classify query or reply.
+    - 1-bit flag authoritative flag, set in a reply message when a DNS server is an authoritative server.
+    - 1-bit recursion-desired flag, set when a client desires that the DNS server perform recursion when it doesn't have the record.
+    - 1-bit recursion-available flag, set in reply if DNS server supports recursion.
+  - **Four number-of fields**, the number of elements in the following four data sections.
+- *Question Section*, information about the query that is being made.
+  - A name field that contains the name that is being queried.
+  - A type field that indicates the type of question being asked about the name.
+- *Answer Section*, resource records for the name that was originally queried. It may composed of multiple Resource Records.
+- *Authority section*, records of other authoritative servers.
+- *Additional Section*,  other helpful records.
+
+#### Inserting Records into the DNS Database
+
+Register a new domain name
+
+- Register the domain name with some registrar.
+- Provide the registrar with names and IP addresses of primary and secondary authoritative DNS servers. The registrar will make sure a Type NS and a Type A record are entered into the TLD servers.
+- Also a Type A resource record for Web server and Type MX resource record for mail server. are entered into authoritative DNS server.
+
+
+
+## Peer-to-Peer File Distribution
+
+A server distribute a large file to lots of clients.
+
+#### Scalability of P2P Architectures
+
+Distribution time for client-server architecture.
+$$
+D_{cs} = \max \{\frac{NF}{u_s}, \frac{F}{d_{min}}\}
+$$
+Distribution time for P2P architecture
+$$
+D_{p2p} = \max\{\frac{F}{u_s},\frac{F}{d_{min}},\frac{NF}{u_s + \sum_{i} u_i}\}
+$$
+
+#### BitTorrent
+
+All peers participating in the distribution of a particular file is called a *torrent*.
+
+Each torrent has an infrastructure node called a *tracker*. a peer joins the torrent by registers itself with the tracker and periodically informs the tracker that it is still in the torrent. The tracker keeps track of the peers that are participating in the torrent.
+
+Then a peer request a list of peers and periodically update their chunk information for downloading.  **Rarest first** downloading scheme ensures number of copies of each chunks in the torrent is equalized.
+
+When choosing which request she responds to, BitTorrent uses a clever trading algorithm. She gives priority to the neighbors that are currently supplying her data at the highest rate.
+
+## Socket Programming: Creating Network Applications
+
+
+
+
+
+
+
+
+
+
 
 
 
