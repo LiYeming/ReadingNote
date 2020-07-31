@@ -427,7 +427,48 @@ while True:
 
 
 
+### Socket Programming with TCP
 
+Before the client and server start sending data to each other, a TCP connection needs to be established.
+
+The client process can initiate a TCP connection to the server.
+
+1. client create a TCP socket, it specifies the welcoming socket in the server, namely the IP address and port number.
+2. Three way handshake and establishes a connection
+   1. When the client process "knocks the door", the server creates a new socket dedicated to this single client.
+   2. The client's process and server's connection socket is directly connected with a pipe.
+
+#### TCPClient.py
+
+```python
+from socket import *
+serverName = 'serverName'
+serverPort = 12000
+clientSocket = socket(AF_INET, SOCKET_STREAM)
+clientSocket.connect((serverName, serverPort))
+sentence = input('Input lowercase sentence:')
+clientSocket.send(sentence.encode())
+modifiedSentence = clientSocket.recv(1024)
+print('From Server:', modifiedSentence.decode())
+clientSocket.close()
+```
+
+#### TCPServer.py
+
+```python
+from socket import *
+serverPort = 12000
+serverSocket = socket(AF_INET, SOCKET_STREAM)
+serverSocket.bind(('', serverPort))
+serverSocket.listen(1)
+print('The server is ready')
+while True:
+    connectionSocket, addr = serverSocket.accept()
+    sentence = connectionSocket.recv(1024).decode()
+    capitalizedSentence = sentence.upper()
+    connectionSocket.send(capitalizedSentence.encode())
+    connectionSocket.close()
+```
 
 
 
