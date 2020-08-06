@@ -61,7 +61,7 @@ Each socket in the host could be assigned a port number, and when a segment arri
 
 `clientSocket = socket(AF_INET, SOCK_DGRAM)`
 
-When a UDP socket is created in this manner, the transport layer automatically assigns a port number to the socket.
+When a UDP socket is created in this manner, the transport layer automatically assigns a port number to the socket. 
 
 `clientSocket.bind(('', 19157))`
 
