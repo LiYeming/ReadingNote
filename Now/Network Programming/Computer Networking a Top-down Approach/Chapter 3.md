@@ -283,10 +283,44 @@ TCP, Internet's transport-layer, connection-oriented, reliable transport protoco
 
 - Connection-oriented
   - "handshake" process to establish the parameters of the ensuing data transfer. both sides of the connection will initialize many TCP state variables associated with TCP connection.
-  - Logical "connection" instead of end-to-end TDM or FDM.
-  - **full-duplex service**, Process A can send and receive data from Process B simultaneously.
-  - **point-to-point** single sender and single receiver.
-  - 
+- Logical "connection" instead of end-to-end TDM or FDM.
+- **full-duplex service**, Process A can send and receive data from Process B simultaneously.
+- **point-to-point** single sender and single receiver.
+  - connection establishment, **"Three-way handshake"**
+  - TCP directs application layer data to sendbuffer, set aside during the initial three-way handshake.
+  - The maximum amount of data that can be grabbed and placed in a segment is limited by **maximum segment size** (MSS).
+  - MSS is determined by the link-layer frame that can be sent by the local sending host MTU. Ethernet and PPP link-layer protocol have MTU of 1500 bytes, thus the typical value of MSS is 1460 bytes.(40 TCP header)
+  - a TCP connection consists of buffers, variables and a socket connection to a process in host.
+
+### TCP Segment Structure
+
+- Source and Destination port number
+- Checksum field
+- 32-bit sequence number field
+- 32-bit acknowledge number field
+- 16-bit receive window field
+- 4-bit header length field
+- Optional and variable-length options field
+  - sender and reciever negotiate the maximum segment size
+  - a window scaling factor for use in high-speed networks.
+  - Time-stamping option
+- Flag field contains 6 bits
+  - **ACK** bit, used to indicate that the value carried in the acknowledgement field is valid.
+  - **RST**, **SYN**, **FIN** bits, used for connection setup and teardown.
+  - **CWR**, **ECE** bits, used in explicit congestion notification
+  - **PSH** bit, receiver should pass the data to upper layer immediately
+  - **URG** bit, there is data in this segment that the sending-side upperlayer entity has marked as "urgent".
+
+#### Sequence Numbers and Acknowledgment Numbers
+
+TCP view data as an unstructured, but ordered, stream of bytes.
+
+**The sequence number for a segment** is the byte-stream number of the first byte in the segment.
+
+**The acknowledgment number** is the sequence number of the next byte expecting from other side.
+
+- TCP is said to provide cumulative acknowledgments
+- Out of order segments are not discarded, but kept and waiting for missing bytes to fill the gaps.
 
 
 
