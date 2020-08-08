@@ -170,11 +170,125 @@ Fundamentally, three additional protocol capabilities in ARQ protocols to handle
   - ACK and NAK packets were sent back from the receiver to the sender.
 - Retransmission.
 
-![image-20200807104302563](/home/yemingli/.config/Typora/typora-user-images/image-20200807104302563.png)
+But What if ACK or NAK is corrupted?
+
+- New protocol? not desirable.
+- Recovery? but Channel must be reliable, not packet loss.
+- Resend duplicated packets? 
+  - How to let receiver know the packet is a resend or new data? Introduce state variable to coordinate sender and receiver.
+    - The sender will change state if received a non-corrupted ACK message and the ACK message match the state of sender, otherwise it resends the message.
+    - The receiver will change state if received a non-corrupted message and the message match the state. otherwise it will resends the ACK message with the last successful state.
+      - The sender would know if it received duplicate ACK messages.
+
+#### Reliable Data Transfer over a Lossy Channel with Bit Errors: rdt3.0
+
+Two additional concerns:
+
+- How to detect packet loss.
+- What to do when packet loss occurs.
+
+The second question is answered in previous protocol. Handling the first quest needs a new protocol mechanism.
+
+- Wait for some time and no reply ensures the sender that the packet is lost, thus resend the packet.
+  - The worst case maximum delay is very difficult to estimate.
+  - In practice, Sender choose a well chosen time value.
+  - Duplicate data packets would likely to happen, but we luckily can handle this situation.
+- A timer is needed for implementation of rdt 3.0
+  - This protocol is called **Alternativing-bit protocol**.
 
 
+
+### Pipelined Reliable Data Transfer Protocols
+
+rdt 3.0 is not efficient since it is a stop-and-wait protocol.
+
+- Utilization is $ \frac{L / R}{RTT + L / R}$, which is extremely low.
+- **Pipelining**, The sender is allowed to send multiple packets without waiting for acknowledgments.
+  - The range of sequence numbers must increase, each in-transit packet must have a unique sequence number and there may be multiple in transit un-acknowledge packets.
+  - The sender and receiver must have to buffer more than one packet.
+  - Two basic approaches toward pipelined error recovery can be identified.
+    - Go-Back-N
+    - Selective repeat
+
+### Go-Back-N (GBN)
+
+the number of packets allowed to transmit without acknowledgment is limited by $N$.
+
+- Implemented by a moving window of size N which start from the oldest unacknowledged packet.
+- GBN protocol is often called sliding-window protocol.
+- In practice, a packet's sequence number is carried in a fixed-length field in the packet header. $[0, 2^k - 1]$, and all arithmetic involving sequence numbers must then be done using modulo $2^k$ arithmetic.
+
+
+
+The GBN sender
+
+- Invocation from above, 
+  - check if the window is full, if not, a packet is created and sent, return the data back otherwise.
+- Receipt of an ACK
+  - cumulative acknowledgment, indicating that all packets with a sequence number  up to and including $n$ have been correctly received.
+- Timeout Event
+  - recursively sent packets in the sliding window, until all acknowledged.
+
+The GBN receiver
+
+- receiving sequence number $n$, correctly and in order if not corrupted, sent it to upper layer, and send an ACK for packet $n$. otherwise sends an ACK for the most recently received in-order packet.
+
+
+
+### Selective Repeat
+
+When the window size if large, a single packet error can cause GBN to retransmit a large number of packets.
+
+- A window size $N$.
+- The sender will have already received ACKs for some of the packets in the window.
+
+SR sender events and actions
+
+- Data received from above, 
+  - checks the next available sequence number for the packet. if available , pack data and sent.
+  - otherwise it is either buffered or returned to the upper layer for later transmission.
+- Timeout,
+  - Each packet must now have its own logical timer, since only a single packet will be transmitted on timeout.
+- ACK received,
+  - Sender marks that packets as having been received, provided it is in the window.
+  - The window base is moved forward to the unacknowledged packet with the smallest sequence number.
+
+SR receiver events and actions
+
+- Packet with sequence number in [rcv_base, rcv_base + N - 1] is correctly received.
+  - The received packet falls within the receiver's window and a selective ACK packet is returned to the sender.
+  - If the packet was not previously received, it is buffered.
+  - If the packet has a sequence number equal to the base of the receive window, then this packet and any previously buffered and consecutively numbered packets are delivered to the upper layer. The window is moved forward.
+- Packet with sequence number in [rcv_base -N, rcv_base -1] is correctly received.
+  - an ACK must be generated, or the sender's window may never move forward.
+  - Sender and Receiver will not always have an identical view of what has been received correctly and what has not.
+- Otherwise, ignore the packet.
+
+
+
+The lack of synchronization between sender and receiver windows have important consequences
+
+- there is no way to distinguish a retransmission of packet no. 0 or a new data from packet no. N.
+- The window size should be lower than or equal to half of the size of the sequence number.
+
+
+
+With packet reordering, the channel can be thought of as essentially buffering packets and spontaneously emitting these packets at any point in the future.
 
 ## Connection-Oriented Transport: TCP
+
+TCP, Internet's transport-layer, connection-oriented, reliable transport protocol.
+
+### The TCP Connection
+
+- Connection-oriented
+  - "handshake" process to establish the parameters of the ensuing data transfer. both sides of the connection will initialize many TCP state variables associated with TCP connection.
+  - Logical "connection" instead of end-to-end TDM or FDM.
+  - **full-duplex service**, Process A can send and receive data from Process B simultaneously.
+  - **point-to-point** single sender and single receiver.
+  - 
+
+
 
 ## Principles of Congestion Control
 
