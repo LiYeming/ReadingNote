@@ -321,6 +321,53 @@ TCP view data as an unstructured, but ordered, stream of bytes.
 
 - TCP is said to provide cumulative acknowledgments
 - Out of order segments are not discarded, but kept and waiting for missing bytes to fill the gaps.
+- In practice, both sides of a TCP connection randomly choose an initial sequence number.
+  - minimize the possibility that a segment that is still present in the network from an earlier already terminated connection between two hosts.
+
+### Round-Trip Time Estimation and Timeout
+
+How to estimate RTT? 
+
+- The SampleRTT for a segment is the amount of time between when the segment is sent and when an acknowledgement for the segment is received.
+
+- most TCP implementations take only one SampleRTT measurement at a time.
+
+  - SampleRTT is being estimated for only one of the transmitted but currently unacknowledged segments
+  - never computes a SampleRTT for a segment that has been retransmitted.
+
+- SampleRTT will fluctuate from segment to segment due to congestion in the routers and to the varying load on the end systems.
+
+  - TCP maintains an average EstimatedRTT of SampleRTT values:
+    $newEstimatedRTT = (1 - \alpha) \cdot EstimatedRTT + \alpha \cdot SampleRTT$
+
+    The recommended value of $\alpha = 0.125$.
+
+  - $DevRTT = (1 - \beta) \cdot DevRTT + \beta \cdot |SampleRTT - EstimatedRTT|$
+
+    The recommended value of $\beta$ is 0.25.
+
+#### Setting and Managing the Retransmission Timeout Interval
+
+$TimeoutInterval = EstimatedRTT + 4 \cdot DevRTT$
+
+where an initial TimeoutInterval value of 1 second is recommended.
+
+### Reliable Data Transfer
+
+TCP creates a reliable data transfer service on top of IP's unreliable best effort service.
+
+- Uncorrupted.
+- Without gaps
+- Without duplication
+- In sequence
+
+The recommended TCP timer management procedures use only a single retransmission timer, even if there are multiple trnasmitted but not yet acknowledge segments.
+
+- Significant overhead of Timer.
+
+
+
+
 
 
 
