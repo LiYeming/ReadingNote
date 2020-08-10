@@ -365,12 +365,171 @@ The recommended TCP timer management procedures use only a single retransmission
 
 - Significant overhead of Timer.
 
+#### Doubling the Time Interval
 
+Length of the timeout interval after a timer expiration
 
+- Each time TCP retransmits it sets the next timeout interval to twice the previous value.
+- A congestion control approach.
 
+#### Fast Retransmit
 
+Doubling timeout interval may cause delay in transimission.
 
+- If TCP sender receives three duplicate ACKs for the same data, it takes this as an indication that data loss happen.
+- TCP sender performs a fast retransmit, overriding the segment's timer.
+
+#### Go-Back-N or Selective Repeat
+
+TCP’s error-recovery mechanism is probably best categorized as a hybrid of GBN and SR protocols.
+
+### Flow Control
+
+Application is relatively slow at reading data. sender would overflow the receive buffer by sending too much data too quickly.
+
+Implementation of flow control
+
+- Sender maintain a variable called the **receiver window**.
+
+- To avoid overflow, we need
+   $LastByteRcvd - LastByteRead \leq RcvBuffer$
+
+- The receiver window is defined as 
+
+  $rwnd = RcvBuffer - (LastByteRcvd - LastByteRead)$
+
+- The sender keep track of two variables, LastByteSent and LastByteAcked.
+
+  - Keep 
+    $rwnd \geq LastByteSent - LastByteAcked$
+  - Sender should continue to send segments with one data byte when rwnd is zero.
+    - In order to update rwnd
+
+### TCP Connection Management
+
+How a TCP connection is established and torn down.
+
+Threeway handshake:
+
+1. client side TCP first send a special TCP segment to the server side TCP.
+   - SYN bit is set to 1. 
+   - Randomly choose an initial sequence number (Client ISN)
+   - No application level data
+   - This is called  **SYN segment**
+2. The server extracts TCP SYN segment, allocates the TCP buffers and variables to the connection, Then send a connection granted segment to the client TCP
+   - SYN bit is set to 1.
+   - Acknowledgment field of the TCP segment header is set to Client ISN + 1.
+   - Server chooses its own initial sequence number (Server ISN) and puts this value in the sequence number field  of the TCP segment header.
+   - This segment is called **SYNACK segment**
+3. The client received the SYNACK segment, allocates buffers and variables to the connection. Send yet another segment
+   - Put the value Server ISN + 1 in the acknowledgment field
+   - Put SYN bit to zero
+   - May carry client-to-server data in the segment payload.
+
+When a connection ends
+
+1. client TCP send a special TCP segment to the server process.
+   - FIN bit is set to 1.
+2. server send an acknowledgment segment in return.
+3. server send a special TCP segment to client with FIN bit set to 1.
+4. client acknowledges the server's shutdown segment. 
+   - At this point, the resources in the two hosts are now deallocated.
 
 ## Principles of Congestion Control
 
+1. Why congestion is a bad.
+2. How network congestion is manifested in the performance received by upper-layer applications.
+3. various approaches to avoid, react to, network congestion.
+
+### The Causes and the Costs of Congestion
+
+#### Two senders, a Router with Infinite Buffers
+
+- Two senders's sending rates are limited to the throughput of router.
+- The average delay is increasing exponantiallly  when the sending rates approaching the throughput ability. and goes to infinity when exceeds it.
+
+*Optimality in throughput is not Optimality in delay*
+
+- Large queuing delays are experienced as the packet-arrival rate nears the link capacity.
+
+#### Scenario 2: Two Senders and a Router with Finite Buffers
+
+1. Packets would be dropped when arriving to an already full buffer
+2. Each connection is reliable, dropped packets would be retransmitted.
+
+Insights:
+
+- *Sender must perform retransmission in order to compensate for dropped packets due to buffer overflow.*
+
+- *Unneeded retransmissions by the sender in the face of large delays may cause a router to use its link bandwidth to forward unneeded copies of a packet.*
+
+#### Scenario 3: Four Senders, Routers with Finite Buffers, and Multihop Paths
+
+Heavy traffic would crowd out throughput of other connections, even to zero.
+
+- A offered load versus throughput tradeoff.
+
+Insights:
+
+- *When a packet is dropped along a path, the transmission capacity that was used at each of the upstream links to forward that packet to the point at which it is dropped ends up having been wasted.*
+
+### Approaches to Congestion Control
+
+- End-to-End congestion control (No Network layer support)
+  - network layer provides not explicit support to the transport layer for congestion control.
+  - TCP duplicated ACKs or timeouts are indicators of congestion, no IP protocol support.
+- Network-assisted congestion control (With Network layer support)
+  - Router provides explicit feedback to the sender receiver pair about congestion state of the network.
+
 ## TCP Congestion Control
+
+Each sender limit the rate at which it sends traffic into its connection as a function of perceived network congestion.
+
+Three questions to be answered.
+
+- How to limit sending rate?
+  - Augmenting Flow Control, cwnd is congestion window.
+    $LastByteSent - LastByteAcked \leq \min\{cwnd, rwnd\}$
+  - The sender's sending rate is bounded by $cwnd / RTT$.
+- How to estimate the congestion?
+  - A timeout or three duplicate ACK from the receiver.
+  - Direct consequence of a overflow of router.
+- What is the optimal relationship between congestion and sending rate?
+  - **Self-clocking**: Use acknowledgements to trigger its increase in congestion window size.
+
+How should a TCP sender to determine the rate at which it should send?
+
+- Too fast, congestion collapse
+- Too slow, waste of bandwidth
+
+Guiding Principles:
+
+- A lost segment implies congestion, hence sending rate should drop.
+- Acknowledged segment implies non-congestion, hence sending rate should increase.
+- Bandwidth probing, zig-zag adjusting sending rate to probe bandwidth.
+
+#### Slow Start
+
+1. $cwnd$ is initialized to a small value 1 $MSS$.
+2. increases by 1 $MSS$ every time a transmitted segment is first acknowledged. In effect doubling sending rate every $RTT$.
+3. When a timeout happen, sender sets the value of $cwnd$ to 1, set $ssthresh$ to $cwnd/2$ and begins the slow start process anew. 
+4. When $cwnd$ equals $ssthresh$, TCP transitions into congestion avoidance mode.
+5. When three duplicate ACKs are detected, in which case TCP performs a fast retransmit and enters the fast recovery state.
+
+#### Congestion Avoidance
+
+1. Conservative increase in $cwnd$, increase the value of $cwnd$ by just a single $MSS$ every $RTT$. Implemented by increase $cwnd$ by $MSS / cwnd$ for each and every new acknowledgment.
+2. When a timeout happen, update $cwnd$ and $ssthresh$, return to slow start state.
+3. When three duplicate ACKS happen, update $ssthresh$, 
+   $cwnd = ssthreash + 3\cdot MSS$, 
+   then enter fast recovery mode.
+
+#### Fast Recovery
+
+1. $cwnd$ is increased by 1 $MSS$ for every duplicate ACK received for the missing segment that caused TCP to enter the fast-recovery state.
+2. Fast Recovery is a recommended, but not required component of TCP.
+
+### Fairness
+
+### Explicit Congestion Notification
+
