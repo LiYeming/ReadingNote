@@ -7,16 +7,16 @@
   std::thread my_thread(do_some_work, args...);
   ```
 
-  std::thread works with any callable type, the supplied function object is copied into the sotrage belonging to the newly created thread of execution and invoked form there.
+  std::thread works with any callable type, the supplied function object is copied into the storage belonging to the newly created thread of execution and invoked from there.
 
 - Terminate a thread:
 
   - joined or detached, decide before std::thread is destroyed.
   - If detached, ensure the named state of the callable object is valid.
-    - detached threads are not longer joinable
+    - Detached threads are no longer joinable.
   - If joined, the new thread would wait the main thread, or the other way. It is not efficient in this way.
-    - also the thread needs to be joinable before join().
-    - We may use RAII to manage join() behavior, just the way to handler memory leak by new and delete, malloc and free, construct a thread manager class have the named state of the reference of the thread, and put join() in the destructor.
+    - Also the thread needs to be joinable before join().
+    - Use RAII to manage.
 
 - Passing arguments, beware of dangling pointer problem.
 
